@@ -71,3 +71,5 @@ Flow from anywhere: tap **Wake PC**, wait a minute, connect with Remote Desktop.
 1. Shut down the desktop normally (Start > Shut down).
 2. Run `wakepc` on the relay (or tap the Shortcut).
 3. The desktop powers on within a few seconds.
+
+**Status:** tested and working, including remotely from school over Tailscale (November 2026).
