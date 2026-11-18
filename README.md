@@ -10,7 +10,7 @@ This repo documents the setup step by step, including the problems I ran into an
 |---|---|---|
 | Desktop | Windows 11 Pro | Main machine and VM host (VMware Workstation Pro). ASUS ROG Strix B550-F, Intel I225-V 2.5 GbE, NVMe SSD + 2 TB HDD for VMs |
 | Laptop | Windows 11 Home | Mobile client, used at school |
-| Relay | Ubuntu Server 26.04 LTS | Old HP laptop with a broken screen, runs headless. Always on, sends Wake-on-LAN packets |
+| Relay | Ubuntu Server 26.04 LTS | Old HP laptop with a broken screen, runs headless. Always on: sends Wake-on-LAN packets, runs AdGuard Home and Uptime Kuma in Docker |
 | iPhone | iOS | Remote access (RDP, SSH) and one-tap Wake-on-LAN |
 
 All devices are connected through a **Tailscale** mesh VPN, so they can reach each other from anywhere (home, school, mobile data) without opening any ports on the router.
@@ -24,7 +24,7 @@ flowchart LR
 
     subgraph Home["Home network"]
         D[Desktop<br/>Windows 11 Pro<br/>VMware VMs]
-        R[Relay<br/>Ubuntu Server<br/>old HP laptop]
+        R[Relay<br/>Ubuntu Server<br/>AdGuard + Uptime Kuma]
     end
 
     L -- "RDP over Tailscale" --> D
@@ -32,6 +32,9 @@ flowchart LR
     P -- "RDP" --> D
     P -- "SSH (key only)" --> R
     R -- "Wake-on-LAN<br/>magic packet" --> D
+    L -. "DNS" .-> R
+    P -. "DNS" .-> R
+    R -. "monitors" .-> D
 ```
 
 ## Parts
@@ -39,6 +42,7 @@ flowchart LR
 1. [Remote access](01-remote-access/README.md): Tailscale, RDP, Sunshine/Moonlight, moving VMs to the desktop over an SMB share
 2. [Linux relay](02-linux-relay/README.md): Ubuntu Server on an old HP laptop with a broken screen, boot and network troubleshooting, key-only SSH
 3. [Wake-on-LAN](03-wake-on-lan/README.md): waking the desktop from anywhere, including a one-tap iPhone Shortcut
+4. [DNS filtering and monitoring](04-dns-and-monitoring/README.md): AdGuard Home for all my devices via Tailscale, Uptime Kuma with phone alerts
 
 ## Lessons learned so far
 
@@ -47,13 +51,14 @@ flowchart LR
 - **Old hardware has old firmware quirks.** The HP would not boot a GPT disk in legacy BIOS mode until the `pmbr_boot` flag was set.
 - **netplan is strict.** YAML indentation errors and the networkd backend not supporting `match:` for Wi-Fi both cost me time.
 - **Never sync VMs with OneDrive.** Large files, constant uploads and a real risk of corruption.
+- **Think about the blast radius.** AdGuard is pushed through Tailscale to my own devices only, not set on the home router, so a dead relay can't break the internet for everyone at home.
 
 ## Roadmap
 
 - [ ] Proxmox on a spare PC as a dedicated hypervisor
-- [ ] DNS filtering (AdGuard Home or Pi-hole)
-- [ ] Monitoring (Uptime Kuma or Zabbix)
-- [ ] Docker on the relay
+- [x] DNS filtering (AdGuard Home)
+- [x] Monitoring (Uptime Kuma)
+- [x] Docker on the relay
 - [ ] Self-hosted replacements for paid services (Nextcloud, Jellyfin, Vaultwarden)
 
 > Note: passwords, keys, MAC addresses and IP addresses in this repo are placeholders.
