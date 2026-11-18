@@ -1,0 +1,12 @@
+# /etc/netplan/02-wifi.yaml
+# Permissions: sudo chmod 600 /etc/netplan/02-wifi.yaml
+# Replace wlo1 with your interface name (ip -br link).
+# The networkd backend does not support match: for Wi-Fi, so the name is required.
+network:
+  version: 2
+  wifis:
+    wlo1:
+      dhcp4: true
+      access-points:
+        "YOUR_WIFI_NAME":
+          password: "YOUR_WIFI_PASSWORD"
