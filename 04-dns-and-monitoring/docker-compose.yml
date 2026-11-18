@@ -1,0 +1,21 @@
+# ~/homelab/docker-compose.yml on the relay
+services:
+  adguard:
+    image: adguard/adguardhome
+    container_name: adguard
+    restart: unless-stopped
+    # Host networking: DNS on port 53 and real client IPs in the query log
+    network_mode: host
+    volumes:
+      - ./adguard/work:/opt/adguardhome/work
+      - ./adguard/conf:/opt/adguardhome/conf
+
+  uptime-kuma:
+    # The :latest tag still points to the old 1.x branch, so pin the major version
+    image: louislam/uptime-kuma:2
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./uptime-kuma:/app/data
